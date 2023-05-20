@@ -11,7 +11,7 @@ void socket_real_ip(YAAMP_SOCKET *s)
 	// get real ip if we are using haproxy or similar that use PROXY protocol
 	// https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt
 	int size, ret;
-	const char v2sig[] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A\x02";
+	const char v2sig[] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
 
 	do {
 		ret = recv(s->sock, &hdr, sizeof(hdr), MSG_PEEK);
@@ -29,7 +29,7 @@ void socket_real_ip(YAAMP_SOCKET *s)
 		// read the buffer without PEEK'ing so that we begin at the real data later in socket_nextjson
 		size = 16 + ntohs(hdr.v2.len);
 		do {
-			ret = recv(s->sock, &hdr, size, 0);
+		    ret = recv(s->sock, &hdr, sizeof(hdr), 0);
 		} while (ret == -1 && errno == EINTR);
 		return;
 	}
