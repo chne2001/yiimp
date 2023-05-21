@@ -14,24 +14,24 @@ void socket_real_ip(YAAMP_SOCKET *s)
 	const char v2sig[] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
 
 	do {
-		ret = recv(s->sock, &hdr, sizeof(hdr.v2), MSG_PEEK);
+	    ret = recv(s->sock, &hdr, sizeof(hdr.v2), MSG_PEEK);
 	} while (ret == -1 && errno == EINTR);
 
 	if (ret >= (16 + ntohs(hdr.v2.len)) &&
-		memcmp(&hdr.v2, v2sig, 12) == 0 &&
-		((hdr.v2.ver_cmd & 0xF0) == 0x20) &&
-		hdr.v2.fam == 0x11) {
-		// we received a proxy v2 header
-		inet_ntop(AF_INET, &hdr.v2.addr.ip4.src_addr, s->ip, 64);
-		s->port = ntohs(hdr.v2.addr.ip4.src_port);
+	    memcmp(&hdr.v2, v2sig, 12) == 0 &&
+	    ((hdr.v2.ver_cmd & 0xF0) == 0x20) &&
+	    hdr.v2.fam == 0x11) {
+	    // we received a proxy v2 header
+	    inet_ntop(AF_INET, &hdr.v2.addr.ip4.src_addr, s->ip, 64);
+	    s->port = ntohs(hdr.v2.addr.ip4.src_port);
 
-		// we need to consume the appropriate amount of data from the socket
-		// read the buffer without PEEK'ing so that we begin at the real data later in socket_nextjson
-    size = ntohs(hdr.v2.len);
-    do {
-        ret = recv(s->sock, &hdr, sizeof(hdr.v2) + size, 0);
-    } while (ret == -1 && errno == EINTR);
-		return;
+	    // we need to consume the appropriate amount of data from the socket
+	    // read the buffer without PEEK'ing so that we begin at the real data later in socket_nextjson
+	    size = ntohs(hdr.v2.len);
+	    do {
+		ret = recv(s->sock, &hdr, sizeof(hdr.v2) + size, 0);
+	    } while (ret == -1 && errno == EINTR);
+	    return;
 	}
 	else {
 		// not received any proxy header
