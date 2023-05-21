@@ -45,7 +45,7 @@ bool g_stratum_segwit = false;
 
 int g_limit_txs_per_block = 0;
 
-bool g_handle_haproxy_ips = false;
+bool g_handle_haproxy_ips = true;
 int g_socket_recv_timeout = 600;
 
 bool g_debuglog_client;
