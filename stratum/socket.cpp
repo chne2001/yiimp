@@ -14,7 +14,7 @@ void socket_real_ip(YAAMP_SOCKET *s)
 	const char v2sig[] = "\x0D\x0A\x0D\x0A\x00\x0D\x0A\x51\x55\x49\x54\x0A";
 
 	do {
-	    ret = recv(s->sock, &hdr, sizeof(hdr.v2), MSG_PEEK);
+		ret = recv(s->sock, &hdr, sizeof(hdr), MSG_PEEK);
 	} while (ret == -1 && errno == EINTR);
 
 	if (ret >= (16 + ntohs(hdr.v2.len)) &&
@@ -28,9 +28,9 @@ void socket_real_ip(YAAMP_SOCKET *s)
 	    // we need to consume the appropriate amount of data from the socket
 	    // read the buffer without PEEK'ing so that we begin at the real data later in socket_nextjson
 	    size = ntohs(hdr.v2.len);
-	    do {
-		ret = recv(s->sock, &hdr, sizeof(hdr.v2) + size, 0);
-	    } while (ret == -1 && errno == EINTR);
+	do {
+		ret = recv(s->sock, &hdr, sizeof(hdr) - sizeof(hdr.v2) + size, 0);
+	} while (ret == -1 && errno == EINTR);
 	    return;
 	}
 	else {
